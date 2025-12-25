@@ -1,4 +1,3 @@
-
 import { db } from './db.ts';
 
 export interface UserSession {
@@ -9,12 +8,15 @@ export interface UserSession {
 
 export const googleAuth = {
   login: async (): Promise<UserSession> => {
+    // Simulated Google OAuth Delay
     await new Promise(r => setTimeout(r, 1200));
+    
     const mockUser = {
-      name: 'Alex Sterling',
-      email: 'alex.sterling@example.com',
-      avatar: 'https://picsum.photos/seed/alex-Sterling/200'
+      name: 'Debosmita',
+      email: 'debosmita.travels@gmail.com',
+      avatar: 'https://picsum.photos/seed/debosmita/200'
     };
+    
     db.users.create(mockUser);
     localStorage.setItem('swift_session', JSON.stringify(mockUser));
     return mockUser;

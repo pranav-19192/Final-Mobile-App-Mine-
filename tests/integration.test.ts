@@ -1,4 +1,3 @@
-
 import { api } from '../services/api.ts';
 import { googleAuth } from '../services/auth.ts';
 
@@ -8,8 +7,8 @@ export const integrationTests = [
     name: 'Auth -> User Persistence Flow',
     run: async () => {
       const user = await googleAuth.login();
-      if (!user || user.email !== 'alex.sterling@example.com') {
-        throw new Error('Auth login failed to return expected mock user');
+      if (!user || user.name !== 'Debosmita') {
+        throw new Error(`Auth login failed to return expected mock user. Got: ${user?.name}`);
       }
       const current = googleAuth.getCurrentUser();
       if (!current || current.email !== user.email) {
@@ -25,7 +24,7 @@ export const integrationTests = [
       if (trips.length === 0) throw new Error('API failed to fetch initial trips');
       
       const testBooking = {
-        userEmail: 'test@example.com',
+        userEmail: 'debosmita.travels@gmail.com',
         tripId: trips[0].id,
         route: 'Integration Test Route',
         type: 'bus',
@@ -40,7 +39,7 @@ export const integrationTests = [
         throw new Error('Booking creation failed in API service');
       }
       
-      const userBookings = await api.fetchMyBookings('test@example.com');
+      const userBookings = await api.fetchMyBookings('debosmita.travels@gmail.com');
       const found = userBookings.find(b => b.id === response.bookingId);
       if (!found) throw new Error('New booking was not found in user booking history');
     }
