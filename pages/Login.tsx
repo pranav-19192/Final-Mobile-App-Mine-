@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { googleAuth, UserSession } from '../services/auth.ts';
 
@@ -9,6 +8,8 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [tab, setTab] = useState<'email' | 'mobile'>('email');
   const [loading, setLoading] = useState(false);
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -17,6 +18,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       onLogin(user);
     } catch (e) {
       alert("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleManualLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!identifier || !password) {
+      alert("Please enter both credentials.");
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const user = await googleAuth.manualLogin(identifier);
+      onLogin(user);
+    } catch (e) {
+      alert("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -67,7 +86,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </button>
         </div>
 
-        <div className="mt-8 space-y-4">
+        <form onSubmit={handleManualLogin} className="mt-8 space-y-4">
           <div className="animate-fadeIn" key={tab}>
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
               {tab === 'email' ? 'Email Address' : 'Mobile Number'}
@@ -81,9 +100,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 )}
               </span>
               <input 
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 type={tab === 'email' ? 'email' : 'tel'} 
                 placeholder={tab === 'email' ? 'name@example.com' : '+1 000 000 0000'} 
                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                required
               />
             </div>
           </div>
@@ -95,20 +117,23 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </span>
               <input 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 type="password" 
                 placeholder="Enter your password" 
                 className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                required
               />
             </div>
           </div>
-        </div>
 
-        <button 
-          onClick={() => alert('Manual login requires backend. Please use Google Auth.')}
-          className="w-full mt-8 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all"
-        >
-          Log In
-        </button>
+          <button 
+            type="submit"
+            className="w-full mt-4 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all"
+          >
+            Log In
+          </button>
+        </form>
 
         <div className="mt-8 flex items-center">
           <div className="flex-1 border-t border-gray-100"></div>
