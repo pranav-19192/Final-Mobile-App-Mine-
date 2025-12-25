@@ -1,15 +1,37 @@
 
 import React, { useState } from 'react';
+import { googleAuth, UserSession } from '../services/auth.ts';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (user: UserSession) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [tab, setTab] = useState<'email' | 'mobile'>('email');
+  const [loading, setLoading] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const user = await googleAuth.login();
+      onLogin(user);
+    } catch (e) {
+      alert("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full animate-fadeIn">
+      {loading && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center">
+          <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+          <p className="mt-6 text-gray-900 font-bold text-lg">Authenticating...</p>
+          <p className="text-gray-400 text-sm mt-1">Connecting to Secure Auth</p>
+        </div>
+      )}
+
       <div className="relative h-64">
         <img 
           src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop" 
@@ -78,19 +100,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
               />
             </div>
-            <div className="text-right mt-2">
-              <button 
-                onClick={() => alert('Reset link sent to your ' + (tab === 'email' ? 'email' : 'mobile'))}
-                className="text-sm font-semibold text-blue-600 hover:text-blue-800"
-              >
-                Forgot Password?
-              </button>
-            </div>
           </div>
         </div>
 
         <button 
-          onClick={onLogin}
+          onClick={() => alert('Manual login requires backend. Please use Google Auth.')}
           className="w-full mt-8 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all"
         >
           Log In
@@ -103,7 +117,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
 
         <button 
-          onClick={onLogin}
+          onClick={handleGoogleLogin}
           className="w-full mt-6 py-4 flex items-center justify-center space-x-3 border border-gray-200 rounded-xl font-bold text-gray-700 hover:bg-gray-50 active:scale-[0.98] transition-all"
         >
           <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" className="w-6 h-6" alt="Google" />
@@ -111,7 +125,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </button>
 
         <p className="mt-8 text-center text-sm text-gray-500">
-          Don't have an account? <button onClick={() => alert('Registration logic goes here')} className="text-blue-600 font-bold ml-1 hover:underline">Sign up</button>
+          Don't have an account? <button className="text-blue-600 font-bold ml-1 hover:underline">Sign up</button>
         </p>
       </div>
     </div>

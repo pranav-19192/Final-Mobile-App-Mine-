@@ -2,36 +2,21 @@
 import React, { useState } from 'react';
 
 interface HomeProps {
+  user: any;
   onSearch: () => void;
   onAdmin: () => void;
   onGoBookings: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ onSearch, onAdmin, onGoBookings }) => {
+const Home: React.FC<HomeProps> = ({ user, onSearch, onAdmin, onGoBookings }) => {
   const [mode, setMode] = useState<'bus' | 'train'>('bus');
   const [origin, setOrigin] = useState('New York, NY');
   const [destination, setDestination] = useState('');
-  const [recentSearches, setRecentSearches] = useState([
-    { origin: 'LON', dest: 'PAR', time: 'Yesterday', passengers: '1 Adult' },
-    { origin: 'BOS', dest: 'NYC', time: '2 days ago', passengers: '2 Adults' },
-    { origin: 'BER', dest: 'AMS', time: 'Older', passengers: '1 Adult' },
-  ]);
 
   const swapLocations = () => {
     const temp = origin;
     setOrigin(destination);
     setDestination(temp);
-  };
-
-  const clearRecent = () => setRecentSearches([]);
-
-  const handleRecentClick = (search: any) => {
-    setOrigin(search.origin);
-    setDestination(search.dest);
-  };
-
-  const handlePopularClick = (dest: string) => {
-    setDestination(dest);
   };
 
   return (
@@ -43,11 +28,11 @@ const Home: React.FC<HomeProps> = ({ onSearch, onAdmin, onGoBookings }) => {
             onClick={onAdmin}
             className="w-12 h-12 rounded-full border-2 border-white shadow-sm overflow-hidden active:scale-95 transition-transform"
           >
-            <img src="https://picsum.photos/seed/alex/200" alt="Avatar" />
+            <img src={user?.avatar || "https://picsum.photos/seed/guest/200"} alt="Avatar" />
           </button>
           <div>
             <p className="text-sm text-gray-500">Good morning,</p>
-            <h2 className="text-xl font-bold text-gray-900">Alex</h2>
+            <h2 className="text-xl font-bold text-gray-900">{user?.name?.split(' ')[0] || 'Guest'}</h2>
           </div>
         </div>
         <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm relative hover:bg-gray-50 active:scale-95 transition-all">
@@ -113,23 +98,6 @@ const Home: React.FC<HomeProps> = ({ onSearch, onAdmin, onGoBookings }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative cursor-pointer" onClick={() => alert('Date Picker Overlay')}>
-              <label className="text-xs font-semibold text-gray-400 absolute top-2 left-4">Date</label>
-              <div className="w-full bg-gray-50 pt-7 pb-3 px-4 rounded-xl flex items-center">
-                <svg className="w-5 h-5 text-gray-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <span className="text-gray-800 font-semibold">Tomorrow</span>
-              </div>
-            </div>
-            <div className="relative cursor-pointer" onClick={() => alert('Time Selector Overlay')}>
-              <label className="text-xs font-semibold text-gray-400 absolute top-2 left-4">Time</label>
-              <div className="w-full bg-gray-50 pt-7 pb-3 px-4 rounded-xl flex items-center">
-                <svg className="w-5 h-5 text-gray-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <span className="text-gray-800 font-semibold">10:00 AM</span>
-              </div>
-            </div>
-          </div>
-
           <button 
             onClick={onSearch}
             className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-200 flex items-center justify-center space-x-2 active:scale-[0.98] transition-all"
@@ -137,67 +105,6 @@ const Home: React.FC<HomeProps> = ({ onSearch, onAdmin, onGoBookings }) => {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             <span>Search connection</span>
           </button>
-        </div>
-      </div>
-
-      {/* Recent Searches */}
-      {recentSearches.length > 0 && (
-        <div className="px-6 mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-900">Recent searches</h3>
-            <button 
-              onClick={clearRecent}
-              className="text-blue-600 font-semibold text-sm hover:underline"
-            >
-              Clear all
-            </button>
-          </div>
-          <div className="flex space-x-4 overflow-x-auto no-scrollbar pb-2">
-            {recentSearches.map((search, idx) => (
-              <button 
-                key={idx} 
-                onClick={() => handleRecentClick(search)}
-                className="min-w-[180px] bg-white rounded-2xl p-4 shadow-sm text-left active:scale-95 transition-all"
-              >
-                <div className="flex items-center text-xs text-gray-400 mb-2">
-                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2"/></svg>
-                  {search.time}
-                </div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-gray-900">{search.origin}</span>
-                  <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                  <span className="font-bold text-gray-900">{search.dest}</span>
-                </div>
-                <p className="text-xs text-gray-400">Bus • {search.passengers}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Popular Destinations */}
-      <div className="px-6 mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-900">Popular destinations</h3>
-          <button className="text-blue-600 font-semibold text-sm" onClick={() => alert('View all destinations')}>View all</button>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            { name: 'San Francisco', price: '$45', img: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=200' },
-            { name: 'Chicago', price: '$32', img: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?q=80&w=200' },
-          ].map((dest, idx) => (
-            <button 
-              key={idx} 
-              onClick={() => handlePopularClick(dest.name)}
-              className="relative h-32 rounded-2xl overflow-hidden group active:scale-95 transition-transform"
-            >
-              <img src={dest.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={dest.name} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-3 text-left">
-                <h4 className="text-white font-bold text-sm leading-tight">{dest.name}</h4>
-                <p className="text-white/80 text-[10px]">From {dest.price}</p>
-              </div>
-            </button>
-          ))}
         </div>
       </div>
     </div>
