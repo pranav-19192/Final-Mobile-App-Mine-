@@ -2,7 +2,7 @@
 
 **Date:** October 26, 2024  
 **Environment:** Browser Runtime (Interactive Testing Dashboard)  
-**Lead Engineer:** Debosmita  
+**Lead Engineer:** Pranav  
 **System Status:** 🟢 ALL SYSTEMS OPERATIONAL
 
 ## Executive Summary
@@ -48,7 +48,7 @@ The SwiftTransit test suite was executed in a real-time browser context using th
 
 - **[i1] Auth -> User Persistence Flow**:
   - **Result:** PASS
-  - **Flow:** Executed `googleAuth.login()` for **Debosmita**; confirmed session storage and `db.users` retrieval match.
+  - **Flow:** Executed `googleAuth.login()` for **Pranav**; confirmed session storage and `db.users` retrieval match.
   - **Duration:** 1210ms (includes simulated network latency)
 - **[i2] Trip Selection -> Seat Booking Flow**:
   - **Result:** PASS

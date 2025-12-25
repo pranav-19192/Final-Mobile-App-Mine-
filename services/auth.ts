@@ -12,9 +12,9 @@ export const googleAuth = {
     await new Promise(r => setTimeout(r, 1200));
     
     const mockUser = {
-      name: 'Debosmita',
-      email: 'debosmita.travels@gmail.com',
-      avatar: 'https://picsum.photos/seed/debosmita/200'
+      name: 'Pranav',
+      email: 'pranav.travels@gmail.com',
+      avatar: 'https://picsum.photos/seed/pranav/200'
     };
     
     db.users.create(mockUser);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api.ts';
 
@@ -81,7 +80,7 @@ const Confirmation: React.FC<ConfirmationProps> = ({ bookingId, onDone, onHelp }
           <div className="p-8 bg-gray-50 grid grid-cols-2 gap-y-6">
              <div>
                <p className="text-[10px] font-bold text-gray-300 uppercase">Passenger</p>
-               <h4 className="font-bold text-gray-800 mt-1">Alex Sterling</h4>
+               <h4 className="font-bold text-gray-800 mt-1">Pranav</h4>
              </div>
              <div className="text-right">
                <p className="text-[10px] font-bold text-gray-300 uppercase">Date</p>
