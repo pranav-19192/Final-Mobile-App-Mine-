@@ -1,0 +1,7 @@
+{
+  "name": "SwiftTransit Travel App",
+  "description": "A comprehensive bus and train booking application featuring real-time search, seat selection, secure checkout, and an AI-powered travel assistant.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
