@@ -1,18 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TestResult } from '../types.ts';
-import * as calculations from '../utils/calculations.ts';
+import { allTests } from '../tests/suite.ts';
 
 const TestingDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [results, setResults] = useState<TestResult[]>([
-    { id: 'u1', name: 'calculateTotalPrice(25, 2) === 50', category: 'unit', status: 'pending', duration: 0 },
-    { id: 'u2', name: 'formatCardNumber formats 16 digits', category: 'unit', status: 'pending', duration: 0 },
-    { id: 'u3', name: 'validateEmail correctly identifies invalid', category: 'unit', status: 'pending', duration: 0 },
-    { id: 'u4', name: 'getDurationMinutes parses "2h 30m"', category: 'unit', status: 'pending', duration: 0 },
-    { id: 'i1', name: 'Search -> Results Navigation Flow', category: 'integration', status: 'pending', duration: 0 },
-    { id: 'i2', name: 'Seat Selection -> Price Update Sync', category: 'integration', status: 'pending', duration: 0 },
-    { id: 'i3', name: 'Checkout -> Confirmation API Success', category: 'integration', status: 'pending', duration: 0 },
-  ]);
+  const [results, setResults] = useState<TestResult[]>(
+    allTests.map(t => ({
+      id: t.id,
+      name: t.name,
+      category: t.category,
+      status: 'pending',
+      duration: 0
+    }))
+  );
 
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -20,45 +20,38 @@ const TestingDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const runTests = async () => {
     setIsRunning(true);
     setProgress(0);
-    const newResults = results.map(r => ({ ...r, status: 'pending' as const, duration: 0 }));
-    setResults(newResults);
+    
+    // Reset results
+    setResults(prev => prev.map(r => ({ ...r, status: 'pending', duration: 0, error: undefined })));
 
-    for (let i = 0; i < newResults.length; i++) {
-      const test = newResults[i];
-      setResults(prev => prev.map(r => r.id === test.id ? { ...r, status: 'running' } : r));
+    for (let i = 0; i < allTests.length; i++) {
+      const testCase = allTests[i];
       
-      // Artificial delay to simulate real execution
-      await new Promise(res => setTimeout(res, 400 + Math.random() * 800));
+      setResults(prev => prev.map(r => r.id === testCase.id ? { ...r, status: 'running' } : r));
       
       const startTime = performance.now();
       let passed = true;
-      let error = '';
+      let errorMsg = '';
 
       try {
-        // Actual execution of unit tests
-        if (test.id === 'u1') passed = calculations.calculateTotalPrice(25, 2) === 50;
-        if (test.id === 'u2') passed = calculations.formatCardNumber('1234567812345678') === '1234 5678 1234 5678';
-        if (test.id === 'u3') passed = calculations.validateEmail('not-an-email') === false;
-        if (test.id === 'u4') passed = calculations.getDurationMinutes('2h 30m') === 150;
-        
-        // Integration simulation
-        if (test.id.startsWith('i')) passed = Math.random() > 0.1; // 90% pass rate for integration sims
-      } catch (e) {
+        await testCase.run();
+      } catch (e: any) {
         passed = false;
-        error = String(e);
+        errorMsg = e.message || String(e);
       }
 
       const duration = Math.round(performance.now() - startTime);
 
-      setResults(prev => prev.map(r => r.id === test.id ? { 
+      setResults(prev => prev.map(r => r.id === testCase.id ? { 
         ...r, 
         status: passed ? 'passed' : 'failed', 
         duration,
-        error: passed ? undefined : (error || 'Assertion failed')
+        error: passed ? undefined : errorMsg
       } : r));
       
-      setProgress(((i + 1) / newResults.length) * 100);
+      setProgress(((i + 1) / allTests.length) * 100);
     }
+    
     setIsRunning(false);
   };
 
@@ -84,7 +77,7 @@ const TestingDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             [exit_terminal]
           </button>
         </div>
-        <p className="text-[10px] text-slate-500 uppercase tracking-widest">Environment: browser_simulation_v1.2</p>
+        <p className="text-[10px] text-slate-500 uppercase tracking-widest">Interactive CI/CD Environment</p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 no-scrollbar">
@@ -98,8 +91,8 @@ const TestingDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <p className="text-2xl font-bold text-rose-500">{stats.failed}</p>
           </div>
           <div className="bg-slate-900/50 border border-slate-800 p-4 rounded-xl">
-            <p className="text-[10px] text-slate-500 font-bold mb-1">PENDING</p>
-            <p className="text-2xl font-bold text-blue-500">{stats.pending}</p>
+            <p className="text-[10px] text-slate-500 font-bold mb-1">TOTAL</p>
+            <p className="text-2xl font-bold text-blue-500">{stats.total}</p>
           </div>
         </div>
 
@@ -133,20 +126,23 @@ const TestingDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <div className="flex items-center space-x-3">
                   <div className="w-4 flex justify-center">
                     {test.status === 'pending' && <span className="text-slate-600">○</span>}
-                    {test.status === 'running' && <span className="text-blue-500 animate-spin">◐</span>}
+                    {test.status === 'running' && <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>}
                     {test.status === 'passed' && <span className="text-emerald-500">✓</span>}
                     {test.status === 'failed' && <span className="text-rose-500">✕</span>}
                   </div>
-                  <span className={`text-xs ${test.status === 'passed' ? 'text-slate-300' : test.status === 'failed' ? 'text-rose-400' : 'text-slate-500'}`}>
-                    {test.name}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className={`text-xs ${test.status === 'passed' ? 'text-slate-300' : test.status === 'failed' ? 'text-rose-400' : 'text-slate-500'}`}>
+                      {test.name}
+                    </span>
+                    <span className="text-[8px] text-slate-600 font-bold uppercase mt-0.5">{test.category}</span>
+                  </div>
                 </div>
                 {test.status !== 'pending' && test.status !== 'running' && (
                   <span className="text-[10px] text-slate-600">{test.duration}ms</span>
                 )}
               </div>
               {test.error && (
-                <div className="mt-2 ml-7 p-2 bg-rose-500/10 rounded border border-rose-500/20 text-[10px] text-rose-400">
+                <div className="mt-2 ml-7 p-2 bg-rose-500/10 rounded border border-rose-500/20 text-[10px] text-rose-400 break-words">
                   Error: {test.error}
                 </div>
               )}
@@ -163,7 +159,7 @@ const TestingDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             isRunning ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-blue-600 text-white shadow-xl shadow-blue-900/20 hover:bg-blue-500'
           }`}
         >
-          {isRunning ? 'TESTING IN PROGRESS...' : 'RUN FULL TEST SUITE'}
+          {isRunning ? 'RUNNING REAL-TIME TESTS...' : 'EXECUTE REAL TEST SUITE'}
         </button>
       </div>
     </div>
